@@ -1,4 +1,4 @@
-#Git忽略文件配置
+#Git忽略文件
 
 HELP.md
 target/
