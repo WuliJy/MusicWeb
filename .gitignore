@@ -1,3 +1,5 @@
+#Git忽略文件配置
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
