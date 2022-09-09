@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>嘤嘤音乐</title>
+		<link rel="icon" type="images/png" sizes="16*16" href="static/img/format.ico">
+		<link rel="stylesheet" type="text/css" href="static/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="static/css/player.css" />
+		<link rel="stylesheet" type="text/css" href="static/fonts/font-awesome-4.7.0/css/font-awesome.min.css" />
+	</head>
+	<body>
+
+		<audio id="audio" class="audio"></audio>
+
+		<div class="music_box">
+
+			<!--标题部分-->
+			<div class="title">
+<a href="index.html">
+				<i class="fa fa-angle-down  fa-2x"></i>
+				</a>
+				<div class="title_info">
+					<div class="title_name">
+						她说
+					</div>
+
+					<div class="title_singer">
+						林俊杰
+					</div>
+				</div>
+
+			</div>
+
+			<!--中心部分-->
+			<div class="box_main">
+
+				<!--播放的控制面板-->
+				<div class="play_board">
+					<!--指针-->
+					<img id="needle" class="needle pause_needle" src="static/img/play_needle.png" />
+
+					<!--磁盘的背景-->
+					<div class="disk_bg">
+
+					</div>
+
+					<!--磁盘的覆盖-->
+					<div id="disk_cover" class="disk_cover">
+						<img class="play_disc" src="static/img/play_disc.png" />
+						<img class="disk_play_song disk_play_song_transition" src="static/img/placeholder_disk_play_song.png" />
+					</div>
+
+				</div>
+
+				<!--显示进度-->
+				<div class="progress_box">
+
+					<div id="time" class="time">
+						00:00
+					</div>
+					<div class="play_progress">
+						<div class="progress_slide">
+
+						</div>
+					</div>
+					<div id="totalTime" class="totalTime">
+						05:10
+					</div>
+
+				</div>
+
+				<!--按钮部分-->
+				<div class="play_control">
+					<img id="play_state" src="static/img/play_icn_loop.png" />
+					<img id="pre" src="static/img/play_btn_prev.png" />
+					<img id="play" src="static/img/play_rdi_btn_play.png" />
+					<img id="next" src="static/img/play_btn_next.png" />
+					<div class="">&nbsp;</div>
+				</div>
+
+			</div>
+
+
+			<script type="text/javascript" src="static/js/music_json.js"></script>
+			<script type="text/javascript" src="static/js/player.js"></script>
+
+		</div>
+
+	</body>
+</html>

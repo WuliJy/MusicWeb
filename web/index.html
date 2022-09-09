@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title>嘤嘤音乐</title>
+		<link rel="icon" type="images/png" sizes="16*16" href="static/img/format.ico">
+		<link rel="stylesheet" type="text/css" href="static/css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="static/fonts/font-awesome-4.7.0/css/font-awesome.min.css" />
+		<style type="text/css">
+		/*box_header样式*/
+
+		.box_header {
+		width: 100%;
+		height: 60px;
+		background-color: red;
+		position: absolute;
+		top: 0;
+		display: flex;
+		/*弹性容器*/
+		flex-direction: row;
+		/*确定主轴方向为水平*/
+		justify-content: space-around;
+		/*主轴排列方式*/
+		align-items: center;
+		color: #FFFFFF;
+		}
+
+
+		/*box_footer样式*/
+
+		.box_footer {
+		width: 100%;
+		height: 60px;
+		background-color: #FFFFFF;
+		position: absolute;
+		bottom: 0;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		color: red;
+		border-top: 1px solid red;
+		}
+
+
+
+		/*让current_img播放的时候转动*/
+		.current_img {
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		margin-left: 10px;
+		}
+
+		.current_img_rotate{
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		margin-left: 10px;
+		animation: imgRotate  4s   infinite  linear;/*名称   时间    次数  速度曲线*/
+		}
+
+		@keyframes imgRotate{
+		0%{   transform: rotate(0deg);}
+		100%{ transform: rotate(360deg);}
+		}
+
+
+
+		#current_info {
+		flex: 3;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding-left: 10px;
+		}
+
+		#current_info div{
+		margin-bottom: 5px;
+		}
+
+		#current_name{
+		color: black;
+		font-weight: bold;
+		width: 200px;
+		white-space:nowrap;  /*不换行*/
+		overflow:hidden; /*超过的内容隐藏*/
+		text-overflow: ellipsis;
+		}
+
+		#current_singer{
+		color: gray;
+		font-size: 12px;
+		}
+
+		i {
+		margin-right: 20px;
+		}
+
+		/*music_item样式*/
+
+		.box_body{
+		width: 100%;
+		height: 480px;
+		margin-top: 60px;
+		overflow: auto; /*超过指定的宽度和高度的内容*/
+		}
+
+		.music_item{
+		width: 100%;
+		height: 70px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid darkgray;
+		}
+
+		.music_img{
+		flex: 1;
+		width: 10%;
+		height: 80%;
+		padding: 10px;
+		}
+
+
+		.music_info{
+		flex: 4;
+		margin-left: 10px;
+		}
+
+		.music_name{
+		font-size: 18px;
+		color: #000000;
+		font-weight: bold;
+		}
+
+		.music_singer{
+		font-size: 13px;
+		font-weight: bold;
+		color: gray;
+		margin-top: 5px;
+		}
+
+		.music_item i{
+		color: gray;
+		}
+
+
+		/*设置滚动条的样式宽度和高度*/
+
+		.box_body::-webkit-scrollbar{
+		width: 4px;
+		height: 4px;
+		}
+
+		/*设置滚动条的翻动部分*/
+
+		.box_body::-webkit-scrollbar-thumb{
+		border-radius: 4px;
+		background-color: rgba(255,0,0,0.3);
+		}
+
+		/*设置滚动条的轨道部分*/
+		.box_body::-webkit-scrollbar-track{
+		border-radius: 4px;
+		background-color: rgba(255,0,0,0.3);
+		}
+		</style>
+
+	</head>
+
+	<body>
+
+		<audio id="audio"></audio>
+
+		<div class="music_box">
+
+			<div class="box_header">
+				<i class="fa fa-navicon fa-lg"></i>
+				<span>我的音乐</span>
+				<span>在线音乐</span>
+				<i class="fa fa-search fa-lg"></i>
+			</div>
+
+			<div id="box_body" class="box_body">
+
+			</div>
+
+			<div class="box_footer">
+
+				<a href="player.html">
+					<img id="current_img" class="current_img" src="static/img/default.jpg" />
+				</a>
+
+				<div id="current_info">
+					<div id="current_name">
+						我们的歌
+					</div>
+					<div id="current_singer">
+						王力宏
+					</div>
+				</div>
+
+				<i id="play_btn" class="fa fa-play-circle-o fa-3x"></i>
+
+				<i id="next_btn"  class="fa fa-step-forward fa-3x"></i>
+			</div>
+		</div>
+
+		<script type="text/javascript" src="static/js/music_json.js" ></script>
+		<script type="text/javascript" src="static/js/index.js" ></script>
+		<script type="text/javascript">
+            //函数:创建标签
+            function createTag(tagName, classVal) {
+                var tag = document.createElement(tagName); //根据标签名创建标签
+                tag.className = classVal; //设置tag的class属性值
+                return tag;
+            }
+
+            //函数:可以通过ID或者Class找到此标签
+            function $(selector) {
+                return document.querySelector(selector);
+            }
+
+            //函数：初始化操作，将json格式的音乐信息显示在页面中
+            function initData() {
+                var box_body = $('#box_body'); //根据ID找到box_body
+                //遍历musicArr
+                for(var i = 0; i < musicArr.length; i++) {
+                    var mp3 = musicArr[i];
+
+                    var music_item = createTag('div', 'music_item');
+                    var music_img = createTag('img', 'music_img');
+                    music_img.src = mp3.ablumCoverPath;
+
+                    var music_info = createTag('div', 'music_info');
+                    var music_name = createTag('div', 'music_name');
+                    music_name.innerHTML = mp3.musicName;
+
+                    var music_singer = createTag('div', 'music_singer');
+                    music_singer.innerHTML = mp3.musicArtist;
+
+                    var iTag = createTag('i', 'fa fa-ellipsis-v  fa-lg');
+
+                    //把music_name和music_singer装入到music_info
+                    music_info.appendChild(music_name);
+                    music_info.appendChild(music_singer);
+
+                    //把music_img,music_info,i装入到music_item
+                    music_item.appendChild(music_img);
+                    music_item.appendChild(music_info);
+                    music_item.appendChild(iTag);
+                    //把music_item装入box_body的内部
+                    box_body.appendChild(music_item);
+
+                    //为图片标签添加一个标识  <img class="music_img" src="img/我们不一样.jpg" data-mid="0">
+                    music_img.dataset.mid = String(i);
+                    //为图片标签添加单击事件
+                    music_img.addEventListener('click', selectMusic);
+                }
+
+            }
+
+            //函数：用户调用此方法选中音乐
+            function selectMusic(event) {
+                //给position赋值
+                position = event.target.dataset.mid;
+                console.info('position=' + position);
+                changeCurrentMusic(position);
+                //调用播放当前音乐的方法
+                startPlay();
+            }
+
+            //函数:修改current_music的显示的内容
+            function changeCurrentMusic(position) {
+                //你选中音乐信息
+                var select_music = musicArr[position];
+
+                $('#current_img').src = select_music.ablumCoverPath;
+
+                $('#current_name').innerHTML = select_music.musicName;
+
+                $('#current_singer').innerHTML = select_music.musicArtist;
+
+                $('#audio').src = select_music.playPath;
+
+            }
+
+            //函数：播放你选中的音乐
+            function startPlay() {
+
+                $('#audio').play(); //开始播放音频
+
+                $('#play_btn').className = 'fa fa-pause-circle-o fa-3x'; //修改play_btn的样式
+
+                $('#current_img').className='current_img_rotate'; //让图片旋转
+
+            }
+            var position = 0; //当前选中的歌曲的索引
+            var isPlaying = false; //标识播放器是否正在播放, true 播放   false 暂停
+
+            initData(); //调用函数，完成音乐列表的展示
+            changeCurrentMusic(position); //默认显示第1首歌曲信息
+
+            //播放和暂停功能
+            $('#play_btn').addEventListener('click', function() {
+
+                if(isPlaying) {
+                    //暂停
+                    $('#audio').pause();
+                    //修改图标
+                    $('#play_btn').className = 'fa fa-play-circle-o fa-3x';
+                    //修改current_img的样式
+                    $('#current_img').className='current_img';
+                    //修改isPlaying的状态
+                    isPlaying = false;
+                } else {
+                    //播放
+                    $('#audio').play();
+                    //修改图标
+                    $('#play_btn').className = 'fa fa-pause-circle-o fa-3x';
+                    //修改current_img的样式
+                    $('#current_img').className='current_img_rotate';
+                    //修改isPlaying的状态
+                    isPlaying = true;
+                }
+
+            });
+
+            //下一首功能
+            $('#next_btn').addEventListener('click',function(){
+
+                position=  ++position % musicArr.length;
+
+                changeCurrentMusic(position);
+
+                startPlay();
+
+            });
+
+
+		</script>
+	</body>
+</html>

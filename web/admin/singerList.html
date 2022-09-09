@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Music</title>
+    <link rel="stylesheet" type="text/css" href="../static/layui/css/layui.css"/>
+</head>
+<body>
+
+<!--显示数据的表格-->
+<table class="layui-hide" id="singerTable" lay-filter="singerEvent"></table>
+
+
+<!--表格每一行后面的三个按钮-->
+<script type="text/html" id="singerBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--表格上面两个按钮，一个添加，一个批量删除-->
+<script type="text/html" id="add_delete_bar">
+    <div class="layui-btn-container">
+        <button class="layui-btn" lay-event="add"><i class="layui-icon"></i>添加</button>
+        <button class="layui-btn layui-btn-danger" lay-event="delAll">
+            <i class="layui-icon layui-icon-delete"></i>批量删除
+        </button>
+    </div>
+</script>
+
+
+<script src="../static/layui/layui.js" charset="utf-8"></script>
+<script src="../static/js/jquery-3.3.1.min.js" charset="utf-8"></script>
+<script>
+    layui.use(['layer', 'form', 'table'], function () {
+        var layer = layui.layer,
+            form = layui.form;
+        var table = layui.table;
+        // 渲染表格的时候需要id
+        var typeTable = table.render({
+            elem: '#singerTable',
+            url: '../singer?method=singerList', //数据接口
+            title: '歌手信息列表',
+            page: {
+                layout: ['prev', 'page', 'next', 'count', 'skip'],
+                groups: 4,
+                first: false, //不显示首页
+                last: false //不显示尾页
+            },//开启分页
+            limit: 5,
+            toolbar: '#add_delete_bar', //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            defaultToolbar: [],
+            cols: [
+                [ //表头
+                   
+				   
+				   {
+                        type: 'checkbox',
+                        fixed: 'left',
+                        align: 'center'
+                    },
+					
+					
+					{field:'singerId',title:'ID',sort:true,align:'center'},
+					{field:'singerName',title:'姓名',align:'center'},
+					{field:'singerSex',title:'性别',align:'center'},
+					{field:'singerLabel',title:'标签',align:'center'},
+					{field:'singerInitial',title:'首字母',align:'center'},
+					{field:'star',title:'受欢迎度',align:'center'},
+					{field:'singerIntro',title:'介绍',align:'center'},
+					{ field:'operator',title:'操作', align:'center', toolbar: '#singerBar'}
+				
+                ]
+            ]
+        });
+        // 表格结束
+
+
+        //监听行工具事件 开始<table class="layui-hide" id="superTypeTable" lay-filter="superTypeEvent"></table>
+        table.on('tool(singerEvent)', function (obj) {
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            switch (layEvent) {
+                case 'del':
+                    layer.confirm('真的删除行么', function (index) {
+                        $.post('../singer?method=delSinger', {"singerId": obj.data.singerId},
+                            function (res) {
+                                layer.msg(res.msg, res.code == 1 ? {icon: 5} : {icon: 6});
+                                obj.del();
+                                typeTable.reload();
+                            }, 'json');
+                    });
+                    break;
+                case 'edit':
+                    layer.open({
+                        type: 2, // iframe
+                        skin: 'layui-layer-demo', //样式类名
+                        title: ['修改歌手信息', 'font-size:22px;'],
+                        closeBtn: 1, //显示关闭按钮
+                        anim: 2, //动画效果
+                        shadeClose: true, //点击遮罩关闭true  false不能关闭
+                        shade: 0.6,
+                        area: ['500px', '250px'],
+                        offset: ['15px', '300px'],
+                        content: 'editSinger.html',
+                        success: function (layero, index) {
+                            var body = layer.getChildFrame('body', index);
+                            body.find('input#singerId').val(obj.data.singerId);
+                        },
+                        end: function () {
+                            typeTable.reload();
+                        }
+                    });
+                    break;
+            }
+        });
+        //监听行工具事件 结束
+
+        //监听头工具栏事件
+        table.on('toolbar(singerEvent)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id)
+                , data = checkStatus.data; //获取选中的数据
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 2, // iframe
+                        skin: 'layui-layer-demo', //样式类名
+                        title: ['添加歌手信息', 'font-size:22px;'],
+                        closeBtn: 1, //显示关闭按钮
+                        anim: 2, //动画效果
+                        shadeClose: true, //点击遮罩关闭true  false不能关闭
+                        shade: 0.6,
+                        area: ['600px', '600px'],
+                        content: 'addSinger.html',
+                        end: function () {
+                            typeTable.reload();
+                        }
+                    });
+                    break;
+                case 'delAll':
+                    if (data.length === 0) {
+                        layer.msg('请选择一行');
+                    } else {
+                        var delIds = ''
+                        for (var i = 0; i < data.length; i++) {
+                            delIds += data[i].singerId + ",";
+                        }
+                        layer.msg(delIds); // 1,2,3,
+                        layer.confirm('是否确定删除?', function (index) {
+                            $.post('../singer?method=dellAll',
+                                {"ids": delIds},
+                                function (res) {
+                                    layer.msg(res.msg, res.code == 1 ? {icon: 6} : {icon: 5});
+                                    typeTable.reload();
+                                }, 'json');
+                        });
+                    }
+                    break;
+            }
+            ;
+        });
+    });
+</script>
+
+</body>
+</html>

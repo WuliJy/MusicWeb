@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./static/css/detail.css">
+    <link rel="stylesheet" type="text/css" href="./static/layui/css/layui.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+   <style>
+       #singerImg{
+           width: 400px;
+           height: 400px;
+       }
+       .choose-btns{
+           transform: translateY(200px);
+       }
+
+   </style>
+</head>
+<body>
+<div class="site-nav-bg">
+<div class="site-nav w1200">
+    <p class="sn-back-home">
+        <i class="layui-icon layui-icon-home"></i>
+        <a href="music.html">首页</a>
+    </p>
+<!--style="background: url('static/img/mainPageImg.jpg') no-repeat;background-size:cover;"-->
+
+    <div class="content content-nav-base datails-content" >
+
+    <div class="data-cont-wrap w1200">
+        <div class="product-intro layui-clear">
+            <div class="preview-wrap">
+                <a href="javascript:;"><img id="singerImg" src="#"></a>
+            </div>
+            <div class="itemInfo-wrap">
+                <div class="itemInfo">
+                    <div class="title">
+                      <h4 id="singerName"></h4>
+                       <!--性别： <h4 id="singerSex"></h4>类型：<h4 id="singerLabel"></h4>-->
+                        <span><i class="layui-icon layui-icon-rate-solid" id="shoucang"></i>收藏</span></br>
+                    </div>
+                    <div class="title">
+                        <br><p id="singerIntro"></p></br>
+                    </div>
+                    <div class="choose-btns">
+                        <input type="hidden" id="singerId" name="singerId" value=""/>
+                        <button class="layui-btn layui-btn-primary purchase-btn">关注</button>
+                        <button id="addCartBtn" class="layui-btn  layui-btn-danger car-btn"><i class="layui-icon "></i>查看专辑</button>
+                    </div>
+                </div>
+            </div>
+      </div>
+    <div class="layui-clear">
+            <div class="aside">
+                <h4>热歌推荐</h4>
+                <div class="item-list">
+
+                </div>
+            </div>
+            <div class="detail">
+                <h4>演唱会信息</h4>
+                <div class="item">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="./static/layui/layui.js"  charset="utf-8"></script>
+<script src="./static/js/jquery-3.3.1.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+    $(function(){
+        //获取index.html页面传递的值
+        var url=window.location.search;
+        var result;
+        if(url.indexOf("?")!==-1){
+            result=url.substr(url.indexOf("=")+1);
+        }
+        console.info(result);
+        $.post('index?method=singerDetail',{'singerId':result},function(res){
+            $('#singerImg').attr('src',"upload/"+res.data.singerImgList[0].imgPath);
+            $('#singerName').html(res.data.singerName);
+            $('#singerSex').html(res.data.singerSex);
+            $('#singerLabel').html(res.data.singerLabel);
+            $('#singerIntro').html(res.data.singerIntro);
+            $('#singerId').val(res.data.singerId);
+
+        },'json');
+
+
+
+        // $('#addCartBtn').click(function(){
+        //      var goodsID= $('#goodsID').val(); //获取商品ID的值
+        //      var buyNum=$('#stock').val(); //购买的个数
+        //      $.post('cart?method=addCart',{'goodsID':goodsID,'buyNum':buyNum},function(res){
+        //           console.info(res);
+        //           if(res.code==1){
+        //               window.location.href="shopcart.html"; //展示购物车信息的页面
+        //           }else{
+        //               window.location.href="login.html";
+        //           }
+        //      },'json');
+        // });
+
+    });
+
+    layui.use(['form'],function(){
+        var form=layui.form;
+
+    });
+</script>
+
+
+</body>
+</html>

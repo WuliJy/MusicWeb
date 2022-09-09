@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Music</title>
+		<link rel="stylesheet" type="text/css" href="../static/layui/css/layui.css" />
+		<style type="text/css">
+			.layui-upload-img {
+				width: 80px;
+				height: 80px;
+				margin: 10px;
+			}
+
+			.demo-slider {
+				padding-top: 15px;
+			}
+
+			.layui-slider-input {
+				margin-top: 15px;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="layui-container">
+			<div class="layui-row">
+				<div class="layui-col-md8 layui-col-md-offset2">
+					<!--菜单依赖于element模块，记得导入-->
+
+
+					<!--表单依赖于form模块，记得导入-->
+					<form class="layui-form" action="" method="post" enctype="multipart/form-data">
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								姓名
+							</label>
+							<div class="layui-input-block">
+								<input type="text" name="singerName" id="singerName" class="layui-input" lay-verify="required"
+								 autocomplete="off" />
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								性别
+							</label>
+							<div class="layui-input-block">
+								<input type="text" name="singerSex" id="singerSex" class="layui-input" lay-verify="required|singerSex"
+								 autocomplete="off" />
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								标签
+							</label>
+							<div class="layui-input-block">
+								<input type="text" name="singerLabel" id="singerLabel" class="layui-input" lay-verify="required|singerLabel"
+								 autocomplete="off" placeholder="标签以空格分开" />
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								首字母
+							</label>
+							<div class="layui-input-block">
+								<input type="text" name="singerInitial" id="singerInitial" class="layui-input" lay-verify="required|singerInitial"
+								 autocomplete="off" placeholder="姓名大写首字母" />
+							</div>
+						</div>
+						<!--图片-->
+						<!--后期会把text改为hidden，目的是将值(多个图片的地址，使用,分隔)传递给servlet-->
+						<input type="hidden" name="singerImgs" class="singerImgs" />
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								图片
+							</label>
+							<div class="layui-upload">
+								<!--用于文件上传-->
+								<button type="button" class="layui-btn" id="upload_img_btn">
+									<i class="layui-icon layui-icon-upload-drag"></i>多图片上传
+								</button>
+								<blockquote class="layui-elem-quote layui-quote-nm" style="margin-left: 35px;margin-top: 20px;">
+									预览
+									<div class="layui-upload-list" id="img_show">
+										<!--很多img追加到这个div中-->
+									</div>
+								</blockquote>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">受欢迎度</label>
+							<div class="layui-input-block">
+								<div id="star"></div>
+								<input type="hidden" name="star" id="star_value" value="0" />
+							</div>
+						</div>
+
+						<!--背景故事文本域 依赖 layedit模块，必须渲染才能使用-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">介绍</label>
+							<div class="layui-input-block">
+								<textarea class="layui-textarea layui-hide" name="singerIntro" lay-verify="singerIntro" id="singerIntro" autocomplete="off"></textarea>
+							</div>
+						</div>
+
+
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button type="button" class="layui-btn" lay-submit lay-filter="addSinger">添加</button>
+								<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+							</div>
+						</div>
+
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="../static/layui/layui.js" charset="UTF-8"></script>
+		<script src="../static/js/jquery-3.3.1.min.js" charset="UTF-8"></script>
+		<script>
+			var multiple_images = []; //存储show_img数据
+			layui.use(['layer', 'form', 'element', 'upload', 'slider', 'rate', 'layedit'], function() {
+				var layer = layui.layer; //弹框
+				var form = layui.form; //表单
+				var element = layui.element; //导航
+				var upload = layui.upload; //文件上传
+				var slider = layui.slider; //滑块
+				var rate = layui.rate; //评分
+				var layedit = layui.layedit; //文本域
+
+				///处理文件上传功能https://www.layui.com/doc/modules/upload.html
+				upload.render({
+					elem: '#upload_img_btn',
+					url: '../UploadServlet',
+					accept: 'images',
+					multiple: true,
+					before: function(obj) {
+						// index 图片的索引
+						//file文件 file.name 文件的名称
+						//result base64显示图片
+						obj.preview(function(index, file, result) {
+							var $img = $('<img/>');
+
+							//记住在style中添加一个.layui-upload-img的样式 width:80px;height:80px;margin:10px;
+							$img.attr({
+								'src': result,
+								'alt': file.name,
+								'title': '点击删除',
+								'class': 'layui-upload-img'
+							});
+
+							// $img.attr('src',result);
+							// $img.attr('alt',file.name);
+							// $img.attr('title','点击删除');
+							// $img.attr('class','layui-upload-img');
+							//为图片绑定单击事件
+							$img.click(function() {
+								// this 是一个js对象,是代表当前你点击的图片
+								//根据图片获取索引<div class="layui-upload-list" id="img_show"></div>
+								var img_index = $("#img_show img").index(this);
+								//删除自己
+								this.remove();
+								//从数组中移除此图片
+								multiple_images.splice(img_index, 1);
+								//重新排序
+								multiple_images.sort();
+								//有一个隐藏域,用于将值传递给Servlet
+								//<input type="text" name="heroImgs" class="heroImgs"/>
+								$('.singerImgs').val(multiple_images);
+							});
+							//把图片追加到div中
+							$('#img_show').append($img);
+						});
+					},
+
+					done: function(res) {
+						layer.msg('文件上传成功');
+						//文件上传成功
+						if (res.code == 1) {
+							layer.msg(res.data.src);
+							multiple_images.push(res.data.src); //将上传成功的图片的地址,存入数组
+							$('.singerImgs').val(multiple_images); //把数组的值显示在隐藏域中
+						}
+					},
+					error: function() {
+						layer.msg('文件上传失败!');
+					}
+				});
+				// 文件上传 end
+
+
+				//处理滑块功能
+			
+				//评分
+				rate.render({
+					elem: '#star',
+					value: 0,
+					text: true,
+					theme: '#009688',
+					choose: function(value) {
+						//在上面添加了一个隐藏域，<input type="hidden" name="nd" id="nd_value"/>
+						$('#star_value').val(value);
+					},
+					setText: function(value) { //自定义文本的回调
+						var arrs = {
+							'1': '娱乐圈草根',
+							'2': '过气了',
+							'3': '不温不火',
+							'4': '人气较高',
+							'5': '人气巨星'
+						};
+						this.span.text(arrs[value] || (value + "星"));
+					}
+				});
+				//评分end
+
+				//创建一个编辑器
+				var editIndex = layedit.build('singerIntro');
+
+				//自定义表单验证
+				form.verify({
+					singerSex: [
+						/^[\u4E00-\u9FA5]{1,2}$/, '中文字符，男或女'
+					],
+					singerLabel: [
+						/^[\u4E00-\u9FA5\s]{1,}$/, '中文字符，空格'
+					],
+					singerInitial:[
+						/^[A-Z]{1,1}$/, '大写字母，一个'
+					],
+					singerIntro: function(value) {
+						layedit.sync(editIndex);
+					}
+				});
+
+
+				//提交表单
+				// <button type="button" class="layui-btn" lay-submit="" lay-filter="addHero">添加</button>
+				form.on('submit(addSinger)', function(data) {
+					// 当前form的全部表单字段，名值对形式：{name: value}
+					$.post('../singer?method=addSinger', data.field, function(res) {
+						//res就是返回的结果
+						console.info(data.field);
+						if (res.code == 1) {
+                            console.info('添加成功!');
+                            layer.msg("添加成功！");
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            setTimeout(function () {
+                                parent.layer.close(index); //再执行关闭
+                            }, 1000);
+						}
+					}, 'json');
+					return false;
+				});
+				layer.msg("layui加载完成")
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Music</title>
+		<link rel="stylesheet" type="text/css" href="../static/layui/css/layui.css" />
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+
+		<div class="layui-container">
+			<div class="layui-row">
+				<div class="layui-col-md8 layui-col-md-offset2">
+
+					<!--表单依赖于form模块，记得导入-->
+					<form class="layui-form" action="" method="post">
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								歌曲名称
+							</label>
+							<div class="layui-input-block">
+								<input type="text" name="songName" id="songName" class="layui-input" lay-verify="required|songName" autocomplete="off" />
+							</div>
+						</div>
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">歌手名称</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="singerName" name="singerName">
+								</select>
+							</div>
+
+							<label class="layui-form-label">所属专辑</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="albumId" name="albumId">
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">语种类型</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="languageType" name="languageType">
+								</select>
+							</div>
+
+							<label class="layui-form-label">所属流派</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="genre" name="genre">
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">心情类型</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="moodType" name="moodType">
+								</select>
+							</div>
+
+							<label class="layui-form-label">风格名称</label>
+							<div class="layui-input-inline">
+								<select class="layui-input" id="style" name="style">
+								</select>
+							</div>
+						</div>
+						
+						
+						<div class="layui-upload">
+						<label class="layui-form-label">
+							<button type="button" class="layui-btn" id="test6"><i class="layui-icon"></i>上传音频</button>
+						</label>
+								</div>
+
+
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button type="button" class="layui-btn" lay-submit lay-filter="addGoods">添加</button>
+								<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+							</div>
+						</div>
+
+
+					</form>
+
+
+				</div>
+			</div>
+		</div>
+
+
+		<script src="../static/layui/layui.js" charset="utf-8"></script>
+		<script src="../static/js/jquery-3.3.1.min.js" charset="utf-8"></script>
+		<script>
+			$(function() {
+				$.post('../song?method=findAll', function(res) {
+					for (var i = 0; i < res.data.length; i++) {
+						$('#songId').append('<option value="' + res.data[i].songId + '">' + res.data[i].songName + '</option>');
+					}
+				}, 'json');
+
+
+				var multiple_images = []; //用于存储show_img的数据
+				layui.use(['layer', 'form', 'upload', 'layedit'], function() {
+					var layer = layui.layer; //弹窗
+					var form = layui.form; // 表单
+					var upload = layui.upload; // 文件上传
+					var layedit = layui.layedit; //文本域
+
+					//处理文件上传
+					 upload.render({
+					    elem: 'upload_img_btn'
+					    ,url: '/uploadServlet/'
+					    ,accept: 'audio' //音频
+					    ,done: function(res){
+					      console.log(res)
+					    } ,
+
+						done: function(res, index, upload){
+					        if(res.code == 0){ //上传成功
+					          var tr = demoListView.find('tr#upload-'+ index)
+					          ,tds = tr.children();
+					          tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+					          tds.eq(3).html(''); //清空操作
+					          return delete this.files[index]; //删除文件队列已经上传成功的文件
+					        }
+					        this.error(index, upload);
+					      }
+					      ,error: function(index, upload){
+					        var tr = demoListView.find('tr#upload-'+ index)
+					        ,tds = tr.children();
+					        tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+					        tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+					      }
+					    });
+					// 文件上传 end
+
+
+					//创建一个编辑器
+					var editIndex = layedit.build('introduce');
+
+					//自定义表单验证
+					form.verify({
+                        songName: [u4E00-\u9FA5\uf900-\ufa2d],
+						introduce: function(value) {
+							layedit.sync(editIndex);
+						}
+					});
+
+					//提交表单
+					form.on('submit(addsong)', function(data) {
+						var checkboxValue = "";
+						$("input:checkbox[name='colors']:checked").each(function() {
+							if (checkboxValue == 0) {
+								checkboxValue = $(this).val();
+								return true;
+							}
+							checkboxValue += ',' + $(this).val();
+						});
+						data.field.colors = checkboxValue;
+						var checkboxValue2 = "";
+						$("input:checkbox[name='sizes']:checked").each(function() {
+							if (checkboxValue2 == 0) {
+								checkboxValue2 = $(this).val();
+								return true;
+							}
+							checkboxValue2 += ',' + $(this).val();
+						});
+						data.field.sizes = checkboxValue2;
+						layer.msg(JSON.stringify(data.field));
+						$.post('../song?method=addsong', data.field, function(res) {
+							//res就是返回的结果
+							console.info(res);
+						});
+						return false;
+					});
+
+
+				});
+			});
+		</script>
+
+	</body>
+</html>
